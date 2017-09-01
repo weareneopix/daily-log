@@ -11,5 +11,8 @@
     "log"
   ],
   "author": "Lazar Ljubenović",
-  "license": "MIT"
+  "license": "MIT",
+  "dependencies": {
+    "simple-git": "^1.76.0"
+  }
 }
