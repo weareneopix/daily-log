@@ -1,5 +1,5 @@
 {
-  "name": "git-log-generator",
+  "name": "git-neopix-summary",
   "version": "0.0.1",
   "description": "Generate a log based on the daily commits",
   "main": "index.js",

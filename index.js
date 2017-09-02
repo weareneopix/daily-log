@@ -1,3 +1,5 @@
+#!/usr/bin/env node
+
 const git = require('simple-git')()
 const _ = require('lodash')
 
