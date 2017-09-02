@@ -13,6 +13,7 @@
   "author": "Lazar Ljubenović",
   "license": "MIT",
   "dependencies": {
+    "lodash": "^4.17.4",
     "simple-git": "^1.76.0"
   }
 }
