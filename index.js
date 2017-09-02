@@ -2,6 +2,7 @@
 
 const git = require('simple-git')()
 const _ = require('lodash')
+const cp = require('copy-paste')
 
 const typeMap = {
   'feat': 'New features',
@@ -25,6 +26,13 @@ git.log({
     .map(typeFormatter)
     .join('\n\n')
   console.log(print)
+  cp.copy(print, (err, next) => {
+    if (err) {
+      return console.log('Copying to clipboard was not successful.')
+    }
+    console.log('\nSuccessfully copied to clipboard!')
+    process.exit()
+  })
 })
 
 function stripBranchInfo(msg) {
