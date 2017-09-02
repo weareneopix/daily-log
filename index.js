@@ -2,6 +2,7 @@ const git = require('simple-git')()
 
 git.log({
   '--all': null,
+  '--no-merges': null,
   '--since': '16 hours ago',
 }, (err, log) => {
   const print = log.all
