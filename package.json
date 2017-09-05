@@ -1,5 +1,5 @@
 {
-  "name": "git-neopix-summary",
+  "name": "@weareneopix/daily-log",
   "version": "0.0.1",
   "description": "Generate a log based on the daily commits",
   "main": "index.js",
@@ -7,7 +7,7 @@
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "bin": {
-    "git-neopix-summary": "./index.js"
+    "git-daily-log": "./index.js"
   },
   "keywords": [
     "git",
