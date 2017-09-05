@@ -24,7 +24,7 @@ git.log({
   }
 
   const print = _(log.all)
-    .map(entry => entry.message)
+    .map('message')
     .map(stripBranchInfo)
     .map(tokenize)
     .groupBy('type')
