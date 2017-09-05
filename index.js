@@ -12,25 +12,34 @@ const typeMap = {
   null: 'Other commits'
 }
 
+const throwErrorAndQuit = () => {
+  console.error('Looks like nothing has been done in last 16 hours.')
+  console.error('You can probably blame it on design, though.')
+  process.exit()
+}
+
 git.raw(['config', '--get', 'user.name'], (err, _username) => {
   const username = _username.trim()
 
-  git.log({
-    '--all': null,
-    '--no-merges': null,
-    '--since': '16 hours ago',
-    '--author': username,
-  }, (err, log) => {
+  git.raw([
+    'log',
+    '--since="1 hours ago"',
+    '--no-merges',
+    `--author=${username}`,
+    '--pretty=format:%s',
+  ], (err, log) => {
 
-    if (log.all.length == 0) {
-      console.log('Looks like nothing has been done in last 16 hours.')
-      console.log('You can probably blame it on design, though.')
-      return;
+    if (log == null) {
+      throwErrorAndQuit();
     }
 
-    const print = _(log.all)
-      .map('message')
-      .map(stripBranchInfo)
+    const messages = log.split('\n')
+
+    if (messages.length == 0) {
+      throwErrorAndQuit();
+    }
+
+    const print = _(messages)
       .map(tokenize)
       .groupBy('type')
       .mapValues(x => _.groupBy(x, 'scope'))
