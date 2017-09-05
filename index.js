@@ -23,7 +23,7 @@ git.raw(['config', '--get', 'user.name'], (err, _username) => {
 
   git.raw([
     'log',
-    '--since="1 hours ago"',
+    '--since="16 hours ago"',
     '--no-merges',
     `--author=${username}`,
     '--pretty=format:%s',
