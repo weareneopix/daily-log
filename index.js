@@ -9,6 +9,7 @@ const typeMap = {
   'chore': 'Chores',
   'refactor': 'Refactoring',
   'fix': 'Fixes',
+  null: 'Other commits'
 }
 
 git.log({
@@ -66,7 +67,11 @@ function scopeFormatter(scope) {
     .map((commits, scope) => {
       const messages = commits.map(({message}) => `• ${message}`)
       const formattedMsgs = messages.map(m => '> ' + m).join('\n')
-      return `${scopeNameFormatter(scope)}\n${formattedMsgs}`
+      if (scope != null && scope != 'null') { // lol
+        return `${scopeNameFormatter(scope)}\n${formattedMsgs}`
+      } else {
+        return formattedMsgs
+      }
     })
 }
 
