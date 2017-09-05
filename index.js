@@ -12,37 +12,42 @@ const typeMap = {
   null: 'Other commits'
 }
 
-git.log({
-  '--all': null,
-  '--no-merges': null,
-  '--since': '16 hours ago',
-}, (err, log) => {
+git.raw(['config', '--get', 'user.name'], (err, _username) => {
+  const username = _username.trim()
 
-  if (log.all.length == 0) {
-    console.log('Looks like nothing has been done in last 16 hours.')
-    console.log('You can probably blame it on design, though.')
-    return;
-  }
+  git.log({
+    '--all': null,
+    '--no-merges': null,
+    '--since': '16 hours ago',
+    '--author': username,
+  }, (err, log) => {
 
-  const print = _(log.all)
-    .map('message')
-    .map(stripBranchInfo)
-    .map(tokenize)
-    .groupBy('type')
-    .mapValues(x => _.groupBy(x, 'scope'))
-    .mapValues(scopeFormatter)
-    .map(typeFormatter)
-    .join('\n\n')
-  console.log(print)
-
-  cp.copy(print, (err, next) => {
-    if (err) {
-      return console.log('Copying to clipboard was not successful.')
+    if (log.all.length == 0) {
+      console.log('Looks like nothing has been done in last 16 hours.')
+      console.log('You can probably blame it on design, though.')
+      return;
     }
-    console.log('\nSuccessfully copied to clipboard!')
-    process.exit()
-  })
 
+    const print = _(log.all)
+      .map('message')
+      .map(stripBranchInfo)
+      .map(tokenize)
+      .groupBy('type')
+      .mapValues(x => _.groupBy(x, 'scope'))
+      .mapValues(scopeFormatter)
+      .map(typeFormatter)
+      .join('\n\n')
+    console.log(print)
+
+    cp.copy(print, (err, next) => {
+      if (err) {
+        return console.log('Copying to clipboard was not successful.')
+      }
+      console.log('\nSuccessfully copied to clipboard!')
+      process.exit()
+    })
+
+  })
 })
 
 function stripBranchInfo(msg) {
