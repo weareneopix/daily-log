@@ -16,6 +16,13 @@ git.log({
   '--no-merges': null,
   '--since': '16 hours ago',
 }, (err, log) => {
+
+  if (log.all.length == 0) {
+    console.log('Looks like nothing has been done in last 16 hours.')
+    console.log('You can probably blame it on design, though.')
+    return;
+  }
+
   const print = _(log.all)
     .map(entry => entry.message)
     .map(stripBranchInfo)
@@ -26,6 +33,7 @@ git.log({
     .map(typeFormatter)
     .join('\n\n')
   console.log(print)
+
   cp.copy(print, (err, next) => {
     if (err) {
       return console.log('Copying to clipboard was not successful.')
@@ -33,6 +41,7 @@ git.log({
     console.log('\nSuccessfully copied to clipboard!')
     process.exit()
   })
+
 })
 
 function stripBranchInfo(msg) {
