@@ -4,7 +4,35 @@ const git = require('simple-git')()
 const _ = require('lodash')
 const cp = require('copy-paste')
 
+const supportedFlags = [{
+    name: 'help',
+    flag: '--help',
+    short: '-h',
+    info: 'Display help message.',
+    usage: ['git daily-log --help'],
+  }, {
+    name: 'branch selection',
+    flag: '--branch',
+    short: '-b',
+    info: 'Select the branch from which to parse commit messages. Default is *develop*.',
+    usage: ['git --branch staging', 'git -b small-api-fix'],
+  }]
+
 const processArgs = process.argv
+
+// check for `--help` flag
+const hasHelpFlag = _.findIndex(processArgs, arg => arg == '--help') > -1
+if (hasHelpFlag) {
+  console.log('This is a simple util for pretty printing daily log based on git semantic commit messages')
+  console.log('Options:')
+  supportedFlags.forEach(supportedFlag => {
+    const usage = supportedFlag.usage.map(usage => `\`${usage}\``).join(' OR ')
+    console.log(`\t${supportedFlag.flag}`)
+    console.log(`\t\t${supportedFlag.info}`)
+    console.log(`\t\tUsage: ${usage}`)
+  })
+  return
+}
 
 // extract branch flag index
 const branchFlagIndex = _.findIndex(processArgs, arg => arg == '-b' || arg == '--branch')
