@@ -4,6 +4,14 @@ const git = require('simple-git')()
 const _ = require('lodash')
 const cp = require('copy-paste')
 
+const processArgs = process.argv
+
+// extract branch flag index
+const branchFlagIndex = _.findIndex(processArgs, arg => arg == '-b' || arg == '--branch')
+// branch name is argument after the flag
+// if no flag, default branch is `master`
+const branchName = branchFlagIndex < 0 ? 'develop' : processArgs[branchFlagIndex + 1]
+
 const typeMap = {
   'feat': 'New features',
   'chore': 'Chores',
@@ -18,14 +26,15 @@ const throwErrorAndQuit = () => {
   process.exit()
 }
 
-git.raw(['config', '--get', 'user.name'], (err, _username) => {
-  const username = _username.trim()
+git.raw(['config', '--get', 'user.email'], (err, _email) => {
+  const email = _email.trim()
 
   git.raw([
     'log',
+    `${branchName}`,
     '--since="16 hours ago"',
     '--no-merges',
-    `--author=${username}`,
+    `--author=${email}`,
     '--pretty=format:%s',
   ], (err, log) => {
 
