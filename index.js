@@ -31,7 +31,7 @@ if (hasHelpFlag) {
     console.log(`\t\t${supportedFlag.info}`)
     console.log(`\t\tUsage: ${usage}`)
   })
-  return
+  process.exit()
 }
 
 // extract branch flag index
