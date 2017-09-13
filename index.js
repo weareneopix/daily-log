@@ -4,6 +4,14 @@ const git = require('simple-git')()
 const _ = require('lodash')
 const cp = require('copy-paste')
 
+const typeMap = {
+  'feat': 'New features',
+  'chore': 'Chores',
+  'refactor': 'Refactoring',
+  'fix': 'Fixes',
+  null: 'Other commits'
+}
+
 const supportedFlags = [{
     name: 'help',
     flag: '--help',
@@ -14,8 +22,8 @@ const supportedFlags = [{
     name: 'branch selection',
     flag: '--branch',
     short: '-b',
-    info: 'Select the branch from which to parse commit messages. Default is *develop*.',
-    usage: ['git --branch staging', 'git -b small-api-fix'],
+    info: 'Select the branches from which to parse commit messages. Default is *develop*.',
+    usage: ['git --branch staging', 'git -b branch-1 branch-2 branch-3'],
   }]
 
 const processArgs = process.argv
@@ -34,24 +42,12 @@ if (hasHelpFlag) {
   process.exit()
 }
 
-// extract branch flag index
-const branchFlagIndex = _.findIndex(processArgs, arg => arg == '-b' || arg == '--branch')
-// branch name is argument after the flag
-// if no flag, default branch is `master`
-const branchName = branchFlagIndex < 0 ? 'develop' : processArgs[branchFlagIndex + 1]
-
-const typeMap = {
-  'feat': 'New features',
-  'chore': 'Chores',
-  'refactor': 'Refactoring',
-  'fix': 'Fixes',
-  null: 'Other commits'
-}
+const branchNames = getBranchNames()
 
 const throwErrorAndQuit = () => {
   console.error('Looks like nothing has been done in last 16 hours.')
   console.error('You can probably blame it on design, though.')
-  process.exit()
+  process.exit(1)
 }
 
 git.raw(['config', '--get', 'user.email'], (err, _email) => {
@@ -59,7 +55,7 @@ git.raw(['config', '--get', 'user.email'], (err, _email) => {
 
   git.raw([
     'log',
-    `${branchName}`,
+    ...branchNames,
     '--since="16 hours ago"',
     '--no-merges',
     `--author=${email}`,
@@ -124,4 +120,18 @@ function scopeFormatter(scope) {
 function typeFormatter(group, type) {
   const formattedType = typeMap[type] ? typeMap[type] : type
   return `\`${formattedType}\`\n${group.join('\n>\n')}`
+}
+
+function getBranchNames() {
+  const branchFlagIndex = _.findIndex(processArgs, arg => arg == '-b' || arg == '--branch')
+  if (branchFlagIndex == -1) {
+    // no branch flag, assume default (`develop`)
+    return ['develop']
+  }
+
+  const branchNameStart = branchFlagIndex + 1
+  const nextFlagIndex = _.findIndex(processArgs, arg => /^\-+/.test(arg), branchNameStart)
+  const branchNameEnd = nextFlagIndex == -1 ? processArgs.length : nextFlagIndex - 1
+  const names = processArgs.slice(branchNameStart, branchNameEnd)
+  return names
 }
