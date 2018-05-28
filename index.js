@@ -12,20 +12,53 @@ const typeMap = {
   null: 'Other commits'
 }
 
-const throwErrorAndQuit = () => {
-  console.error('Looks like nothing has been done in last 16 hours.')
-  console.error('You can probably blame it on design, though.')
+const supportedFlags = [{
+    name: 'help',
+    flag: '--help',
+    short: '-h',
+    info: 'Display help message.',
+    usage: ['git daily-log --help'],
+  }, {
+    name: 'branch selection',
+    flag: '--branch',
+    short: '-b',
+    info: 'Select the branches from which to parse commit messages. Default is *develop*.',
+    usage: ['git --branch staging', 'git -b branch-1 branch-2 branch-3'],
+  }]
+
+const processArgs = process.argv
+
+// check for `--help` flag
+const hasHelpFlag = _.findIndex(processArgs, arg => arg == '--help') > -1
+if (hasHelpFlag) {
+  console.log('This is a simple util for pretty printing daily log based on git semantic commit messages')
+  console.log('Options:')
+  supportedFlags.forEach(supportedFlag => {
+    const usage = supportedFlag.usage.map(usage => `\`${usage}\``).join(' OR ')
+    console.log(`\t${supportedFlag.flag}`)
+    console.log(`\t\t${supportedFlag.info}`)
+    console.log(`\t\tUsage: ${usage}`)
+  })
   process.exit()
 }
 
-git.raw(['config', '--get', 'user.name'], (err, _username) => {
-  const username = _username.trim()
+const branchNames = getBranchNames()
+
+const throwErrorAndQuit = () => {
+  console.error('Looks like nothing has been done in last 16 hours.')
+  console.error('You can probably blame it on design, though.')
+  process.exit(1)
+}
+
+git.raw(['config', '--get', 'user.email'], (err, _email) => {
+  const email = _email.trim()
 
   git.raw([
     'log',
+    ...branchNames,
     '--since="16 hours ago"',
     '--no-merges',
-    `--author=${username}`,
+    `--author=${email}`,
     '--pretty=format:%s',
   ], (err, log) => {
 
@@ -87,4 +120,18 @@ function scopeFormatter(scope) {
 function typeFormatter(group, type) {
   const formattedType = typeMap[type] ? typeMap[type] : type
   return `\`${formattedType}\`\n${group.join('\n>\n')}`
+}
+
+function getBranchNames() {
+  const branchFlagIndex = _.findIndex(processArgs, arg => arg == '-b' || arg == '--branch')
+  if (branchFlagIndex == -1) {
+    // no branch flag, assume default (`develop`)
+    return ['develop']
+  }
+
+  const branchNameStart = branchFlagIndex + 1
+  const nextFlagIndex = _.findIndex(processArgs, arg => /^\-+/.test(arg), branchNameStart)
+  const branchNameEnd = nextFlagIndex == -1 ? processArgs.length : nextFlagIndex - 1
+  const names = processArgs.slice(branchNameStart, branchNameEnd)
+  return names
 }
