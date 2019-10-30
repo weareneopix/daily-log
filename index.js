@@ -3,6 +3,7 @@
 const git = require('simple-git')()
 const _ = require('lodash')
 const cp = require('copy-paste')
+const program = require('commander');
 
 const typeMap = {
   'feat': 'New features',
@@ -12,33 +13,59 @@ const typeMap = {
   null: 'Other commits'
 }
 
+program
+  .option('-a, --author <author>', 'commit author')
+  .option('-m, --me', 'get only your commits');
+  
+program.parse(process.argv);
+
 const throwErrorAndQuit = () => {
   console.error('Looks like nothing has been done in last 16 hours.')
   console.error('You can probably blame it on design, though.')
   process.exit()
 }
 
-git.raw(['config', '--get', 'user.name'], (err, _username) => {
-  const username = _username.trim()
+let username = '';
+let hasFinished = false
 
+if (program.author) {
+  username = program.author.trim()
+  hasFinished = true;
+  getCommits();
+}
+
+
+if (program.me && !hasFinished) {
+  hasFinished = true;
+  git.raw(['config', '--get', 'user.name'], (err, _username) => { 
+    username = _username.trim()
+    getCommits();
+  })
+}
+
+if (!hasFinished) {
+  getCommits();
+}
+
+function getCommits() { 
   git.raw([
     'log',
     '--since="16 hours ago"',
     '--no-merges',
-    `--author=${username}`,
+    ...username && [`--author=${username}`],
     '--pretty=format:%s',
   ], (err, log) => {
-
+  
     if (log == null) {
       throwErrorAndQuit();
     }
-
+  
     const messages = log.split('\n')
-
+  
     if (messages.length == 0) {
       throwErrorAndQuit();
     }
-
+  
     const print = _(messages)
       .map(tokenize)
       .groupBy('type')
@@ -47,7 +74,7 @@ git.raw(['config', '--get', 'user.name'], (err, _username) => {
       .map(typeFormatter)
       .join('\n\n')
     console.log(print)
-
+  
     cp.copy(print, (err, next) => {
       if (err) {
         return console.log('Copying to clipboard was not successful.')
@@ -55,9 +82,8 @@ git.raw(['config', '--get', 'user.name'], (err, _username) => {
       console.log('\nSuccessfully copied to clipboard!')
       process.exit()
     })
-
-  })
-})
+  });
+}
 
 function tokenize(msg) {
   const result = /^(\S+)\((.*)\):\s?(.*)/g.exec(msg)
