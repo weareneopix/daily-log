@@ -1,9 +1,11 @@
 #!/usr/bin/env node
 
-const git = require('simple-git')()
+const git = require('simple-git/promise')()
 const _ = require('lodash')
 const cp = require('copy-paste')
 const program = require('commander');
+const u = require('./utils');
+const m = require('./messages');
 
 const typeMap = {
   'feat': 'New features',
@@ -19,70 +21,8 @@ program
   
 program.parse(process.argv);
 
-const throwErrorAndQuit = () => {
-  console.error('Looks like nothing has been done in last 16 hours.')
-  console.error('You can probably blame it on design, though.')
-  process.exit()
-}
-
-let username = '';
-let hasFinished = false
-
-if (program.author) {
-  username = program.author.trim()
-  hasFinished = true;
-  getCommits();
-}
-
-
-if (program.me && !hasFinished) {
-  hasFinished = true;
-  git.raw(['config', '--get', 'user.name'], (err, _username) => { 
-    username = _username.trim()
-    getCommits();
-  })
-}
-
-if (!hasFinished) {
-  getCommits();
-}
-
-function getCommits() { 
-  git.raw([
-    'log',
-    '--since="16 hours ago"',
-    '--no-merges',
-    ...username && [`--author=${username}`],
-    '--pretty=format:%s',
-  ], (err, log) => {
-  
-    if (log == null) {
-      throwErrorAndQuit();
-    }
-  
-    const messages = log.split('\n')
-  
-    if (messages.length == 0) {
-      throwErrorAndQuit();
-    }
-  
-    const print = _(messages)
-      .map(tokenize)
-      .groupBy('type')
-      .mapValues(x => _.groupBy(x, 'scope'))
-      .mapValues(scopeFormatter)
-      .map(typeFormatter)
-      .join('\n\n')
-    console.log(print)
-  
-    cp.copy(print, (err, next) => {
-      if (err) {
-        return console.log('Copying to clipboard was not successful.')
-      }
-      console.log('\nSuccessfully copied to clipboard!')
-      process.exit()
-    })
-  });
+async function getUsername() {
+  return git.raw(['config', '--get', 'user.name']);
 }
 
 function tokenize(msg) {
@@ -114,3 +54,64 @@ function typeFormatter(group, type) {
   const formattedType = typeMap[type] ? typeMap[type] : type
   return `\`${formattedType}\`\n${group.join('\n>\n')}`
 }
+
+async function getLog({ username }) {
+  try {
+    const log = await git.raw([
+      'log',
+      '--since="16 hours ago"',
+      '--no-merges',
+      ...username && [`--author=${username}`],
+      '--pretty=format:%s',
+    ])
+
+    return log;
+
+  } catch (e) {
+    u.error(e);
+  }
+}
+
+function prettyPrintLog(log) {
+  const messages = log.split('\n')
+  const print = _(messages)
+      .map(tokenize)
+      .groupBy('type')
+      .mapValues(x => _.groupBy(x, 'scope'))
+      .mapValues(scopeFormatter)
+      .map(typeFormatter)
+      .join('\n\n')
+  console.log(print)
+  return print;
+}
+
+function copyLogToClipboard(log) {
+  try {
+    cp.copy(log);
+    u.success(m.success);
+    process.exit()
+  } catch (e) {
+    u.error(e);
+  }
+}
+
+(async () => {
+  let username = '';
+
+  if (program.author && program.me) u.error(m.selectedMandA)
+
+  if (program.author) username = program.author
+  if (program.me) username = await getUsername();
+
+  username = username.trim();
+
+  let log = await getLog({ username });
+
+  if (!log) {
+    u.warning(m.blameItOnDgn);
+    process.exit()
+  }
+
+  log = prettyPrintLog(log);
+  copyLogToClipboard(log);
+})();
