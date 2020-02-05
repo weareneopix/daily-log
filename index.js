@@ -17,8 +17,11 @@ const typeMap = {
 
 program
   .option('-a, --author <author>', 'commit author')
-  .option('-m, --me', 'get only your commits');
-  
+  .option('-c, --commit <commit>', 'commit hash')
+  .option('-s, --since <date>', 'show commits more recent than a specific date.')
+  .option('-m, --me', 'get only your commits')
+  .action(start);
+
 program.parse(process.argv);
 
 async function getUsername() {
@@ -55,13 +58,14 @@ function typeFormatter(group, type) {
   return `\`${formattedType}\`\n${group.join('\n>\n')}`
 }
 
-async function getLog({ username }) {
+async function getLog({ username, range, since }) {
   try {
     const log = await git.raw([
       'log',
-      '--since="16 hours ago"',
+      ...(range ? [`${range}`] : []),
+      ...(since ? [`--since="${since}"`] : []),
+      ...(username ? [`--author=${username}`] : []),
       '--no-merges',
-      ...username && [`--author=${username}`],
       '--pretty=format:%s',
     ])
 
@@ -95,17 +99,28 @@ function copyLogToClipboard(log) {
   }
 }
 
-(async () => {
+async function start(r, o) {
+  /**
+   * Based on the number of parameters provided.
+   * Check what is an argument and what are options
+   */
+  let range;
+  let options = o;
+  if (typeof r === 'object') {
+    options = r;
+  } else {
+    range = r;
+  }
+
   let username = '';
+  const since = options.since;
 
-  if (program.author && program.me) u.error(m.selectedMandA)
-
-  if (program.author) username = program.author
-  if (program.me) username = await getUsername();
+  if (options.author && options.me) u.error(m.selectedMandA);
+  if (options.author) username = options.author;
+  if (options.me) username = await getUsername();
 
   username = username.trim();
-
-  let log = await getLog({ username });
+  let log = await getLog({ username, range, since });
 
   if (!log) {
     u.warning(m.blameItOnDgn);
@@ -114,4 +129,4 @@ function copyLogToClipboard(log) {
 
   log = prettyPrintLog(log);
   copyLogToClipboard(log);
-})();
+}
