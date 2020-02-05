@@ -1,10 +1,10 @@
 {
   "name": "@weareneopix/daily-log",
   "version": "0.0.1",
-  "description": "Generate a log based on the daily commits",
+  "description": "Generate a log based on the daily commits.",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: please help us write some\" && exit 1"
   },
   "bin": {
     "git-daily-log": "./index.js"
@@ -13,7 +13,11 @@
     "git",
     "log"
   ],
-  "author": "Lazar Ljubenović",
+  "author": {
+    "name": "Neopix",
+    "email": "info@weareneopix.com",
+    "url": "https://weareneopix.com/"
+  },
   "license": "MIT",
   "dependencies": {
     "chalk": "^2.4.2",
