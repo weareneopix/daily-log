@@ -10,6 +10,11 @@
     "git",
     "log"
   ],
+  "homepage": "https://github.com/weareneopix/daily-log#readme",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/weareneopix/daily-log"
+  },
   "author": {
     "name": "Neopix",
     "email": "info@weareneopix.com",
