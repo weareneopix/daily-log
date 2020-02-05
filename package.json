@@ -3,9 +3,6 @@
   "version": "0.0.1",
   "description": "Generate a log based on the daily commits.",
   "main": "index.js",
-  "scripts": {
-    "test": "echo \"Error: please help us write some\" && exit 1"
-  },
   "bin": {
     "git-daily-log": "./index.js"
   },
