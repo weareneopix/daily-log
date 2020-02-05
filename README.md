@@ -15,7 +15,7 @@ npm i -g @weareneopix/daily-log
 ```sh
 git-daliy-log [<range>] [<options>]
 ```
-###`<range>`
+#### `<range>`
 
 Show only commits in the specified revision range. When no `<range>` is specified, it defaults to HEAD
 (i.e. the whole history leading to the current commit). origin..HEAD specifies all the commits reachable from the current
