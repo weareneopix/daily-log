@@ -1,4 +1,14 @@
-# Git Daily Log
+<p align="center">
+  <img width="200" src="https://i.imgur.com/0BLD8zI.png" alt="Wood Logo by @rudityas">
+</p>
+
+<p align="center">
+<a href="https://badge.fury.io/js/%40weareneopix%2Fdaily-log"><img src="https://badge.fury.io/js/%40weareneopix%2Fdaily-log.png" alt="npm version" height="18"></a>
+</p>
+
+<h2 align="center">Git Daily Log</h2>
+<hr>
+
 Generate a log based on the daily commits. The commit message format that is used and pares by `git-daily-log`
 is [Karma Semantic Commits](2)
 
