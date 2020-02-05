@@ -1,6 +1,6 @@
 {
   "name": "@weareneopix/daily-log",
-  "version": "0.0.1",
+  "version": "1.0.0",
   "description": "Generate a log based on the daily commits.",
   "main": "index.js",
   "bin": {
