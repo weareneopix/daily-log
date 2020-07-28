@@ -3,6 +3,9 @@
   "version": "1.0.0",
   "description": "Generate a log based on the daily commits.",
   "main": "index.js",
+  "publishConfig": {
+    "registry": "https://npm.pkg.github.com/"
+  },
   "bin": {
     "git-daily-log": "./index.js"
   },

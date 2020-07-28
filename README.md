@@ -3,14 +3,14 @@
 </p>
 
 <p align="center">
-<a href="https://badge.fury.io/js/%40weareneopix%2Fdaily-log"><img src="https://badge.fury.io/js/%40weareneopix%2Fdaily-log.png" alt="npm version" height="18"></a>
+<a href="https://badge.fury.io/gh/weareneopix%2Fdaily-log"><img src="https://badge.fury.io/gh/weareneopix%2Fdaily-log.svg" alt="GitHub version" height="18"></a>
 </p>
 
 <h2 align="center">Git Daily Log</h2>
 <hr>
 
 Generate a log based on the daily commits. The commit message format that is used and pares by `git-daily-log`
-is [Karma Semantic Commits](2)
+is [Karma Semantic Commits][2]
 
 ## Installation
 
@@ -23,13 +23,13 @@ npm i -g @weareneopix/daily-log
 ## Usage
 
 ```sh
-git-daliy-log [<range>] [<options>]
+git-daily-log [<range>] [<options>]
 ```
 #### `<range>`
 
 Show only commits in the specified revision range. When no `<range>` is specified, it defaults to HEAD
 (i.e. the whole history leading to the current commit). origin..HEAD specifies all the commits reachable from the current
-commit (i.e. HEAD), but not from origin. For a complete list of ways to spell `<range>`, see the Specifying Ranges section of [gitrevisions](3).
+commit (i.e. HEAD), but not from origin. For a complete list of ways to spell `<range>`, see the Specifying Ranges section of [gitrevisions][3].
 
 ## Options
 
@@ -38,7 +38,7 @@ The CLI provides options to customize the output.
 | Option                  | Description                                                    | Required |
 |-------------------------|----------------------------------------------------------------|----------|
 | `-a, --author <author>` | Show only commits from provided `author`                       | No       |
-| `-s, --since <date>`    | Show commits more recent than a specific date. [More info.](1) | No       |
+| `-s, --since <date>`    | Show commits more recent than a specific date. [More info.][1] | No       |
 | `-m, --me`              | Show only my commits                                           | No       |
 | `-h, --help`            | Get CLI usage information                                      | No       |
 
